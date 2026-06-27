@@ -194,7 +194,7 @@
     .btn:active           { transform: scale(0.94); }
     .btn.pending          { background: var(--burgundy); color: #fff; }
     .btn.uploading        { background: var(--gold); color: #fff; pointer-events: none; }
-    .btn.done             { background: var(--green); color: #fff; cursor: default; }
+    .btn.done             { background: var(--green); color: #fff; }
 
     /* ── SPINNER ── */
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -237,7 +237,7 @@
 <div class="notices" id="notices"></div>
 <div class="content" id="content"></div>
 
-<input type="file" id="file-input" accept="image/*" capture="environment">
+<input type="file" id="file-input" accept="image/*">
 
 <script>
   // ── CONFIGURACIÓN ──────────────────────────────────────────────────
@@ -391,8 +391,7 @@
         const leftEl = `<div class="status-icon">${info.done ? '✅' : '📷'}</div>`;
 
         const btnCls  = info.done ? 'btn done' : 'btn pending';
-        const btnTxt  = info.done ? '✅&nbsp;Hecho' : '📷&nbsp;Subir';
-        const disabled = info.done ? 'disabled' : '';
+        const btnTxt  = info.done ? '🔄&nbsp;Cambiar' : '📷&nbsp;Subir';
 
         card.innerHTML = `
           ${leftEl}
@@ -402,13 +401,11 @@
               ${info.done ? '✅ Foto subida' : 'Pendiente'}
             </div>
           </div>
-          <button class="${btnCls}" id="btn-${key}" data-cat="${cat}" data-plato="${plato}" ${disabled}>
+          <button class="${btnCls}" id="btn-${key}" data-cat="${cat}" data-plato="${plato}">
             ${btnTxt}
           </button>`;
 
-        if (!info.done) {
-          card.querySelector('button').addEventListener('click', handleClick);
-        }
+        card.querySelector('button').addEventListener('click', handleClick);
         section.appendChild(card);
       }
       content.appendChild(section);
@@ -445,7 +442,8 @@
 
     const { cat, plato } = pending;
     pending = null;
-    const key = k(cat, plato);
+    const key     = k(cat, plato);
+    const wasDone = !!(state[key] && state[key].done);   // ¿es una re-subida?
 
     // Estado: subiendo
     const btn = document.getElementById('btn-' + key);
@@ -471,7 +469,8 @@
             <div class="card-name">${plato}</div>
             <div class="card-status ok">✅ Foto subida</div>
           </div>
-          <button class="btn done" disabled>✅&nbsp;Hecho</button>`;
+          <button class="btn done" id="btn-${key}" data-cat="${cat}" data-plato="${plato}">🔄&nbsp;Cambiar</button>`;
+        card.querySelector('button').addEventListener('click', handleClick);
       }
 
       const done = Object.values(state).filter(v => v.done).length;
@@ -479,8 +478,8 @@
 
     } catch (err) {
       if (btn) {
-        btn.className = 'btn pending';
-        btn.innerHTML = '📷&nbsp;Subir';
+        btn.className = wasDone ? 'btn done' : 'btn pending';
+        btn.innerHTML = wasDone ? '🔄&nbsp;Cambiar' : '📷&nbsp;Subir';
         btn.disabled  = false;
       }
       alert('Error al procesar la imagen:\n' + err.message);

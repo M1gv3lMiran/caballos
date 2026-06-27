@@ -7,6 +7,7 @@
 
 const CFG = {
   clave: 'caballos2024',
+  // Carpetas de Drive dentro de  Caballos / Original / <categoría>
   carpetas: {
     'Entrantes':             '1qfo18DUlRAz3t-fm9t9MK1XN5PzY9PBz',
     'Ensaladas':             '1O-terLz6YJwU5OZWJP8dBPQTJW1Wmv0E',
